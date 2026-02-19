@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ translations.title }}</title>
+    <title>InternGuard - Fake Internship Detector</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -17,9 +17,7 @@
                     <i class="fas fa-shield-alt"></i>
                     <h1>InternGuard</h1>
                 </div>
-                <p class="tagline">{{ translations.tagline }}</p>
-
-
+                <p class="tagline">AI-Powered Fake Internship Detection</p>
             </div>
         </header>
 
@@ -27,11 +25,11 @@
         <nav class="nav-tabs">
             <button class="nav-tab active" data-tab="job-detection">
                 <i class="fas fa-search"></i>
-                {{ translations.job_detection }}
+                Job Detection
             </button>
             <button class="nav-tab" data-tab="company-search">
                 <i class="fas fa-building"></i>
-                {{ translations.company_search }}
+                Company Search
             </button>
             <a href="/analytics" class="nav-tab analytics-link" style="text-decoration: none; color: inherit;">
                 <i class="fas fa-chart-bar"></i>
@@ -44,18 +42,18 @@
             <!-- Job Detection Tab -->
             <div class="tab-content active" id="job-detection">
                 <div class="card">
-                    <h2><i class="fas fa-search"></i> {{ translations.job_analysis }}</h2>
-                    <p class="card-description">{{ translations.analysis_desc }}</p>
+                    <h2><i class="fas fa-search"></i> Job Posting Analysis</h2>
+                    <p class="card-description">Paste a job description, enter a URL, or upload an image to check if it's a fake internship posting.</p>
 
                     <div class="input-methods">
                         <div class="method-tabs">
                             <button class="method-tab active" data-method="text">
                                 <i class="fas fa-keyboard"></i>
-                                {{ translations.direct_text }}
+                                Direct Text
                             </button>
                             <button class="method-tab" data-method="url">
                                 <i class="fas fa-link"></i>
-                                {{ translations.url_extraction }}
+                                URL Extraction
                             </button>
                             <button class="method-tab" data-method="image">
                                 <i class="fas fa-image"></i>
@@ -65,19 +63,19 @@
 
                         <!-- Direct Text Input -->
                         <div class="input-section active" id="text-input">
-                            <textarea id="job-text" placeholder="{{ translations.paste_placeholder }}"></textarea>
+                            <textarea id="job-text" placeholder="Paste the job posting text here... (Press Ctrl+Enter to analyze)"></textarea>
                             <button class="analyze-btn" onclick="analyzeJob()">
                                 <i class="fas fa-magic"></i>
-                                {{ translations.analyze_btn }}
+                                Analyze Job Posting
                             </button>
                         </div>
 
                         <!-- URL Input -->
                         <div class="input-section" id="url-input">
-                            <input type="url" id="job-url" placeholder="{{ translations.url_placeholder }}">
+                            <input type="url" id="job-url" placeholder="Enter the job posting URL (e.g. https://...)">
                             <button class="extract-btn" onclick="extractFromUrl()">
                                 <i class="fas fa-download"></i>
-                                {{ translations.extract_btn }}
+                                Extract &amp; Analyze
                             </button>
                         </div>
 
@@ -86,14 +84,14 @@
                             <input type="file" id="job-image" accept="image/*">
                             <button class="extract-btn" onclick="analyzeImage()">
                                 <i class="fas fa-upload"></i>
-                                {{ translations.extract_btn }}
+                                Extract &amp; Analyze
                             </button>
                         </div>
                     </div>
 
                     <!-- Results Section -->
                     <div id="results" class="results-section" style="display: none;">
-                        <h3><i class="fas fa-chart-line"></i> {{ translations.results }}</h3>
+                        <h3><i class="fas fa-chart-line"></i> Analysis Results</h3>
                         <div id="result-content"></div>
 
                         <!-- AI-Powered Analysis Section -->
@@ -101,15 +99,15 @@
                             <h4><i class="fas fa-brain"></i> AI-Powered Analysis</h4>
                             <div class="ai-analysis-grid">
                                 <div class="ai-analysis-card" id="salary-analysis">
-                                    <h5><i class="fas fa-dollar-sign"></i> {{ translations.salary_analysis }}</h5>
+                                    <h5><i class="fas fa-dollar-sign"></i> Salary Analysis</h5>
                                     <div class="ai-content"></div>
                                 </div>
                                 <div class="ai-analysis-card" id="job-quality">
-                                    <h5><i class="fas fa-star"></i> {{ translations.job_quality }}</h5>
+                                    <h5><i class="fas fa-star"></i> Job Quality Score</h5>
                                     <div class="ai-content"></div>
                                 </div>
                                 <div class="ai-analysis-card" id="interview-analysis">
-                                    <h5><i class="fas fa-handshake"></i> {{ translations.interview_analysis }}</h5>
+                                    <h5><i class="fas fa-handshake"></i> Interview Process Analysis</h5>
                                     <div class="ai-content"></div>
                                 </div>
                             </div>
@@ -119,7 +117,7 @@
                         <div class="export-section">
                             <button class="export-btn" onclick="exportPDF()">
                                 <i class="fas fa-file-pdf"></i>
-                                {{ translations.export_pdf }}
+                                Export PDF Report
                             </button>
                         </div>
                     </div>
@@ -129,22 +127,22 @@
             <!-- Company Search Tab -->
             <div class="tab-content" id="company-search">
                 <div class="card">
-                    <h2><i class="fas fa-building"></i> {{ translations.company_database }}</h2>
-                    <p class="card-description">{{ translations.company_desc }}</p>
+                    <h2><i class="fas fa-building"></i> Company Fraud Database</h2>
+                    <p class="card-description">Search our database to check if a company has been flagged for fraudulent internship postings.</p>
 
                     <div class="search-section">
                         <div class="search-box">
-                            <input type="text" id="company-name" placeholder="{{ translations.company_placeholder }}">
+                            <input type="text" id="company-name" placeholder="Enter company name to search...">
                             <button class="search-btn" onclick="searchCompany()">
                                 <i class="fas fa-search"></i>
-                                {{ translations.search_btn }}
+                                Search
                             </button>
                         </div>
                     </div>
 
                     <!-- Company Results -->
                     <div id="company-results" class="company-results" style="display: none;">
-                        <h3><i class="fas fa-info-circle"></i> {{ translations.company_info }}</h3>
+                        <h3><i class="fas fa-info-circle"></i> Company Information</h3>
                         <div id="company-content"></div>
                     </div>
                 </div>
@@ -157,10 +155,33 @@
     <div id="loading" class="loading-overlay" style="display: none;">
         <div class="loading-content">
             <div class="spinner"></div>
-            <p>{{ translations.analyzing }}</p>
+            <p>Analyzing, please wait...</p>
         </div>
     </div>
 
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+
+    <!-- Chatbot Button -->
+    <div id="chatbot-button" class="chatbot-button">
+        <i class="fas fa-comment-dots"></i>
+    </div>
+
+    <!-- Chatbot Popup -->
+    <div id="chatbot-popup" class="chatbot-popup">
+        <div class="chatbot-header">
+            <span>InternGuard Assistant</span>
+            <i class="fas fa-times" id="close-chatbot"></i>
+        </div>
+        <div class="chatbot-messages" id="chatbot-messages">
+            <div class="bot-message">Hi 👋 How can I help you today?</div>
+        </div>
+        <div class="chatbot-input-area">
+            <input type="text" id="chatbot-input" placeholder="Type your message...">
+            <button onclick="sendChatMessage()">
+                <i class="fas fa-paper-plane"></i>
+            </button>
+        </div>
+    </div>
+
 </body>
 </html>

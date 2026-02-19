@@ -8,11 +8,9 @@ document.addEventListener('DOMContentLoaded', function() {
         tab.addEventListener('click', () => {
             const targetTab = tab.getAttribute('data-tab');
             
-            // Remove active class from all tabs and contents
             navTabs.forEach(t => t.classList.remove('active'));
             tabContents.forEach(content => content.classList.remove('active'));
             
-            // Add active class to clicked tab and corresponding content
             tab.classList.add('active');
             document.getElementById(targetTab).classList.add('active');
         });
@@ -26,14 +24,42 @@ document.addEventListener('DOMContentLoaded', function() {
         tab.addEventListener('click', () => {
             const targetMethod = tab.getAttribute('data-method');
             
-            // Remove active class from all method tabs and input sections
             methodTabs.forEach(t => t.classList.remove('active'));
             inputSections.forEach(section => section.classList.remove('active'));
             
-            // Add active class to clicked tab and corresponding input section
             tab.classList.add('active');
             document.getElementById(targetMethod + '-input').classList.add('active');
         });
+    });
+
+    // Enter key for job text analysis
+    document.getElementById('job-text').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter' && e.ctrlKey) {
+            analyzeJob();
+        }
+    });
+    
+    // Enter key for URL extraction
+    document.getElementById('job-url').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            extractFromUrl();
+        }
+    });
+    
+    // Enter key for company search
+    document.getElementById('company-name').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            searchCompany();
+        }
+    });
+
+    // ✅ FIXED: Chatbot open/close inside DOMContentLoaded
+    document.getElementById("chatbot-button").addEventListener("click", function() {
+        document.getElementById("chatbot-popup").style.display = "flex";
+    });
+
+    document.getElementById("close-chatbot").addEventListener("click", function() {
+        document.getElementById("chatbot-popup").style.display = "none";
     });
 });
 
@@ -128,7 +154,6 @@ async function extractFromUrl() {
     showLoading();
     
     try {
-        // First extract text from URL
         const extractResponse = await fetch('/extract_url', {
             method: 'POST',
             headers: {
@@ -144,7 +169,6 @@ async function extractFromUrl() {
             return;
         }
         
-        // Then analyze the extracted text
         const analyzeResponse = await fetch('/detect', {
             method: 'POST',
             headers: {
@@ -227,13 +251,11 @@ function displayJobResults(data, extractedText = null) {
     resultContent.innerHTML = html;
     resultsDiv.style.display = 'block';
     
-    // Display AI Analysis if available
     if (data.salary_analysis || data.job_quality_score || data.interview_analysis) {
         displayAIAnalysis(data);
         aiAnalysisDiv.style.display = 'block';
     }
     
-    // Store data for PDF export
     window.currentAnalysisData = data;
 }
 
@@ -415,198 +437,6 @@ function showCompanyMessage(message, type = 'info') {
     resultsDiv.style.display = 'block';
 }
 
-// LinkedIn Integration
-async function analyzeLinkedIn() {
-    const linkedinUrl = document.getElementById('linkedin-url').value.trim();
-    
-    if (!linkedinUrl) {
-        showIntegrationError('Please enter a LinkedIn job posting URL.');
-        return;
-    }
-    
-    showLoading();
-    
-    try {
-        const response = await fetch('/analyze_linkedin', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ linkedin_url: linkedinUrl })
-        });
-        
-        const data = await response.json();
-        
-        if (response.ok) {
-            displayIntegrationResults(data, 'LinkedIn');
-        } else {
-            showIntegrationError(data.error || 'An error occurred during LinkedIn analysis.');
-        }
-    } catch (error) {
-        showIntegrationError('Network error. Please check your connection and try again.');
-    } finally {
-        hideLoading();
-    }
-}
-
-// Indeed Integration
-async function analyzeIndeed() {
-    const indeedUrl = document.getElementById('indeed-url').value.trim();
-    
-    if (!indeedUrl) {
-        showIntegrationError('Please enter an Indeed job posting URL.');
-        return;
-    }
-    
-    showLoading();
-    
-    try {
-        const response = await fetch('/analyze_indeed', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ indeed_url: indeedUrl })
-        });
-        
-        const data = await response.json();
-        
-        if (response.ok) {
-            displayIntegrationResults(data, 'Indeed');
-        } else {
-            showIntegrationError(data.error || 'An error occurred during Indeed analysis.');
-        }
-    } catch (error) {
-        showIntegrationError('Network error. Please check your connection and try again.');
-    } finally {
-        hideLoading();
-    }
-}
-
-// Glassdoor Integration
-async function analyzeGlassdoor() {
-    const glassdoorUrl = document.getElementById('glassdoor-url').value.trim();
-    
-    if (!glassdoorUrl) {
-        showIntegrationError('Please enter a Glassdoor job posting URL.');
-        return;
-    }
-    
-    showLoading();
-    
-    try {
-        const response = await fetch('/analyze_glassdoor', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ glassdoor_url: glassdoorUrl })
-        });
-        
-        const data = await response.json();
-        
-        if (response.ok) {
-            displayIntegrationResults(data, 'Glassdoor');
-        } else {
-            showIntegrationError(data.error || 'An error occurred during Glassdoor analysis.');
-        }
-    } catch (error) {
-        showIntegrationError('Network error. Please check your connection and try again.');
-    } finally {
-        hideLoading();
-    }
-}
-
-// Display integration results
-function displayIntegrationResults(data, platform, extractedText = null) {
-    const resultsDiv = document.getElementById('integration-results');
-    const resultContent = document.getElementById('integration-content');
-    const aiAnalysisDiv = document.getElementById('ai-analysis');
-    
-    const isFake = data.result && typeof data.result === 'string' && data.result.includes('FAKE');
-    const resultClass = isFake ? 'fake' : 'real';
-    const resultIcon = isFake ? 'fas fa-times-circle' : 'fas fa-check-circle';
-    const iconClass = isFake ? 'fake' : 'real';
-    
-    let html = `
-        <div class="result-card ${resultClass}">
-            <div class="result-header">
-                <i class="result-icon ${iconClass} ${resultIcon}"></i>
-                <div>
-                    <div class="result-title">${data.result || 'Unknown'} (${platform})</div>
-                    <div class="result-confidence">Confidence: ${Math.min(100, Math.max(0, data.confidence_score || 0)).toFixed(1)}%</div>
-                </div>
-            </div>
-            
-            <div class="detail-item">
-                <div class="detail-label">Platform</div>
-                <div class="detail-value">${platform}</div>
-            </div>
-            
-            <div class="detail-item">
-                <div class="detail-label">Words Analyzed</div>
-                <div class="detail-value">${data.word_count}</div>
-            </div>
-    `;
-    
-    if (data.pattern_matches && data.pattern_matches.length > 0) {
-        html += `
-            <div class="pattern-matches">
-                <h4><i class="fas fa-exclamation-triangle"></i> Suspicious Patterns Detected</h4>
-                <ul class="pattern-list">
-        `;
-        
-        data.pattern_matches.forEach(pattern => {
-            html += `<li>${pattern}</li>`;
-        });
-        
-        html += `
-                </ul>
-            </div>
-        `;
-    }
-    
-    if (extractedText) {
-        html += `
-            <div class="detail-item" style="margin-top: 1rem;">
-                <div class="detail-label">Extracted Text Preview</div>
-                <div style="max-height: 200px; overflow-y: auto; background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 8px; font-size: 0.9rem; color: #b0b0b0;">
-                    ${extractedText.substring(0, 500)}${extractedText.length > 500 ? '...' : ''}
-                </div>
-            </div>
-        `;
-    }
-    
-    html += '</div>';
-    
-    resultContent.innerHTML = html;
-    resultsDiv.style.display = 'block';
-    
-    // Display AI Analysis if available
-    if (data.salary_analysis || data.internship_quality_score || data.interview_analysis) {
-        displayAIAnalysis(data);
-        aiAnalysisDiv.style.display = 'block';
-    }
-    
-    // Store data for PDF export
-    window.currentAnalysisData = data;
-}
-
-// Show integration error message
-function showIntegrationError(message) {
-    const resultsDiv = document.getElementById('integration-results');
-    const resultContent = document.getElementById('integration-content');
-    
-    resultContent.innerHTML = `
-        <div class="error-message">
-            <i class="fas fa-exclamation-triangle"></i>
-            ${message}
-        </div>
-    `;
-    
-    resultsDiv.style.display = 'block';
-}
-
 // Export PDF
 async function exportPDF() {
     if (!window.currentAnalysisData) {
@@ -646,63 +476,24 @@ async function exportPDF() {
     }
 }
 
-// Enter key handlers
-document.addEventListener('DOMContentLoaded', function() {
-    // Enter key for job text analysis
-    document.getElementById('job-text').addEventListener('keypress', function(e) {
-        if (e.key === 'Enter' && e.ctrlKey) {
-            analyzeJob();
-        }
-    });
-    
-    // Enter key for URL extraction
-    document.getElementById('job-url').addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-            extractFromUrl();
-        }
-    });
-    
-    // Enter key for company search
-    document.getElementById('company-name').addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-            searchCompany();
-        }
-    });
-    
-    // Enter key for LinkedIn integration
-    document.getElementById('linkedin-url').addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-            analyzeLinkedIn();
-        }
-    });
-    
-    // Enter key for Indeed integration
-    document.getElementById('indeed-url').addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-            analyzeIndeed();
-        }
-    });
-    
-    // Enter key for Glassdoor integration
-    document.getElementById('glassdoor-url').addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-            analyzeGlassdoor();
-        }
-    });
-});
+// Send chatbot message
+function sendChatMessage() {
+    const input = document.getElementById("chatbot-input");
+    const message = input.value.trim();
+    if (!message) return;
 
-// Add some sample data for testing
-function addSampleData() {
-    // Sample job posting text for testing
-    const sampleJobText = `We are looking for a remote data entry specialist. No experience required. 
-    You can work from home and earn $50-100 per hour. Immediate start available. 
-    Please send your personal information including bank details and credit card information. 
-    This is an urgent opportunity with limited time. Certificate will be provided for a small fee.`;
-    
-    document.getElementById('job-text').value = sampleJobText;
+    const messagesDiv = document.getElementById("chatbot-messages");
+
+    const userMsg = document.createElement("div");
+    userMsg.className = "user-message";
+    userMsg.textContent = message;
+    messagesDiv.appendChild(userMsg);
+
+    const botMsg = document.createElement("div");
+    botMsg.className = "bot-message";
+    botMsg.textContent = "I'm analyzing your query...";
+    messagesDiv.appendChild(botMsg);
+
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    input.value = "";
 }
-
-// Add sample company for testing
-function addSampleCompany() {
-    document.getElementById('company-name').value = 'fakecorp';
-} 
